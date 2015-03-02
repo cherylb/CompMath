@@ -1,0 +1,281 @@
+
+# Week 4 Assignment
+Cheryl Bowersox 
+IS 605 - 1
+2/22/15
+
+========================================================
+## Problem Set 1
+
+$$
+
+  A = \begin{bmatrix}
+  1 & 2 & 3\\
+  -1 & 0 & 4\end{bmatrix}\\
+  
+  
+  X = AA^t
+  Y = A^tA
+
+$$
+
+```{r}
+library("MASS")
+A <- matrix(c(1,-1,2,0,3,4),nrow= 2)
+
+X <- A %*% t(A)
+Y <- t(A) %*% A
+
+```
+$$
+
+  X = \begin{bmatrix}
+  14 & 11\\
+  11 & 17\end{bmatrix}\\
+
+
+  Y = \begin{bmatrix}
+  2 & 2 & -1\\
+  2 & 4 & 6\\
+  -1 & 6 & 25\end{bmatrix}\\
+
+$$
+
+### Eigenvalues and vectors for X, Y
+```{r}
+# function for converting matrix format from R
+convmat <- function(X){
+  M <- paste("\\begin{bmatrix}","\n")
+  
+  i = 1
+  n = nrow(X)
+  if(is.null(n)){
+    n <- length(X)
+    while(i <= n){
+       M <- paste(M, paste(round(X[i],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }else{
+    while(i <= n){
+       M <- paste(M, paste(round(X[i,],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }
+  M <- paste(M, "\\end{bmatrix}","\n", collapse = "")
+  return (M)
+}
+
+
+```
+
+Eigenvalues and Vectors for X:
+$$
+  W_{x1} = 
+  `r convmat(eigen(X)$vectors[,1])`     
+ 
+  \lambda_{x1} = `r round(eigen(X)$values[1],4)`\\
+  
+   W_{x2} =
+  `r convmat(eigen(X)$Vectors[,2])`    
+ 
+  \lambda_{x2} = `r round(eigen(X)$values[2],4)`\\
+$$  
+
+Eigenvalues and Vectors for Y:
+$$
+  W_{Y1} = 
+  `r convmat(eigen(Y)$vectors[,1])`     
+ 
+  \lambda_{Y1} = `r round(eigen(Y)$values[1],4)`\\
+  
+   W_{Y2} =
+  `r convmat(eigen(Y)$vectors[,2])`    
+ 
+  \lambda_{21} = `r round(eigen(Y)$values[2],4)`\\
+  
+   W_{Y3} =
+  `r convmat(eigen(Y)$vectors[,3])`    
+ 
+  \lambda_{31} = `r round(eigen(Y)$values[3],4)`\\
+$$  
+
+
+### SVD of A
+```{r}
+# X = A 
+v_x <- eigen(X)$vectors
+v_y <- eigen(Y)$vectors
+e_x <- eigen(X)$values
+e_y <- eigen(Y)$values
+
+U <- svd(A)$u
+D <- diag(svd(A)$d)
+V <- svd(A)$v
+```
+
+### singular vectors are the eigenvectors of X and Y
+(1) U and V are eigenvectors(W) of $X$ iff $XW = \lambda_W$
+
+(2) The columns of U are equal to scaler multiples of the eigenvectors of X given by the eigen() function
+(3) If the columns of U are a scaled version of the eigenvectors of X, they must have equivalent eigenvalues
+
+$$
+  U = 
+  `r convmat(U)`     
+$$
+
+(4) eigenvalues of X as $\lambda$ and the corresponding vectors of U satisfy the conditions of (1) for each column vector of U
+
+**U1**
+$$
+  W_{u1} = 
+  `r convmat(U[,1])`     
+ 
+  \lambda_{x1} = `r round(e_x[1],4)`
+$$
+```{r}
+C <- X %*% U[,1]
+E <- e_x[1] * U[,1]
+```
+$$ 
+  W_{u1} = 
+  `r convmat(C)`    = 
+  `r convmat(E)`    =
+  W_{x1}\\
+$$
+
+**U2**
+ 
+$$
+  W_{u2} = 
+  `r convmat(U[,2])`     
+  \lambda_{x2} = `r round(e_x[2],4)`
+$$
+```{r}
+C <- X %*% U[,2]
+E <- e_x[2] * U[,2]
+```
+$$ 
+  W_{u2} = 
+  `r convmat(C)`    = 
+  `r convmat(E)`    =
+  W_{x2}\\
+$$
+
+
+(4) Similarly to (2), V contains eigenvectors of Y
+(5) eigenvalues of Y as $\lambda$ and the corresponding vectors of V satisfy the conditions of (1) for each column vector of V
+
+**V1**
+$$
+  W_{v1} = 
+  `r convmat(V[,1])`     
+
+  \lambda_{y1} = `r round(e_y[1],4)`
+$$
+```{r}
+C <- Y %*% V[,1]
+E <- e_y[1] * V[,1]
+```
+$$ 
+  W_{v1} = 
+  `r convmat(C)`    = 
+  `r convmat(E)`    =
+  W_{y1}\\
+$$
+
+**V2**
+ 
+$$
+  W_{v2} = 
+  `r convmat(V[,2])`     
+  \lambda_{v2} = `r round(e_y[2],4)`
+$$
+```{r}
+C <- Y %*% V[,2]
+E <- e_y[2] * V[,2]
+```
+$$ 
+  W_{v2} = 
+  `r convmat(C)`    = 
+  `r convmat(E)`    =
+  W_{y2}\\
+$$
+
+**V3**
+
+$\lambda_{v3} = `r round(e_y[3],4)`$
+
+The 3rd eigenvalue of V is essentially zero, resulting in the trivial solution and is not shown.
+
+
+(6) The non-zero eigenvalues for X and Y are equal to eachother
+$$
+ \lambda_{Y1} = `r round(e_y[1],4)`  =  \lambda_{x1} = `r round(e_x[1],4)`\\
+ \lambda_{Y2} = `r round(e_y[2],4)`  =  \lambda_{x1} = `r round(e_x[2],4)`\\
+$$
+
+(7) the eigenvalues for X and Y are equal to square of non-zero singular values of A
+
+$$ 
+  D = 
+  `r convmat(D)`\\
+  
+  
+`r round(D[1,1],4)`^2 = `r round(e_y[1],4)` = \lambda_1\\
+`r round(D[2,2],4)`^2 = `r round(e_y[2],4)` = \lambda_2\\
+$$
+
+
+========================================================
+## Problem Set 2
+
+### Inverse of a Matrix A
+```{r}
+
+myinverse <- function(A){
+  #  function to compute the inverse of well-conditioned, full rank square matrix using cofactors
+  n <- nrow(A)
+  i = 1
+  j = 1
+  w = 0
+  C = diag(0,n)
+  while(i <= n){ #for each row in A
+    j = 1
+    while(j <= n){  #for each column A
+      M <- A[-i,-j]
+      s = (-1)^w
+      w = w + 1
+      C[i,j] <- s * det(M)   # assign to cofactor matrix
+      j = j + 1
+    }
+    i = i + 1
+  }
+  B <- t(C) * 1/det(A)
+return(B)
+}   
+
+# example
+A <- matrix(c(1,2,3,1,2,4,3,5,3),nrow = 3)
+B <- myinverse(A)
+(C <- A %*% B)
+#rounding to 8 places to compare to I
+round(C,8) == diag(1,nrow(A))  #rounded C = I
+```
+
+
+$$ 
+  A = 
+  `r convmat(A)`\\
+  
+  A^-1 = 
+  `r convmat(B)`\\
+  
+  A %*% A^-1 =
+  `r convmat(C)`    =  I
+  
+  
+$$
+
+
+

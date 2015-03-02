@@ -1,0 +1,121 @@
+# Week 2 Assignment
+Cheryl Bowersox 
+IS 605 - 1
+2/8/15
+
+========================================================
+## Problem Set 1
+
+
+In general: $ A \times A^T \ne A^T \times A$ $\forall A$
+  
+  (1)   If A is a n X m matrix and B is a m X p martrix then $A \times B$ will result in an n X p matrix $\forall A, B\\$
+  
+  (2)   If $A$ is a n X m matrix then $A^T$ is a m X n matrix
+  
+  (3)   $A \times A^T $ is a n X n matrix by (1)
+  
+  (4)   $A^T \times A$ is a m X m matrix by (1)
+  
+  (5)   If $n \ne m$ then $A^T \times A$ cannot equal $A times A^T$
+  
+  (6)   $A \times A^t \ne A^t \times A$ $\forall A$
+  
+  
+      
+For some A where A is n x n $A \times A^T = A^T \times A\\$ 
+
+  (1)   $B = A^T\\$
+  
+  (2)  then $A_{ij} = B_{ji}$
+  
+  (3)  If A is a diagonal square matrix $A_{ij} = B_{ji} \forall i = j$ 
+  $A_{ij} = 0 = B_{ji} \forall  i \ne j$
+  
+  (4)   $A = B = A^T$
+  (5)   A \times \A^T = A \times \A = A^T \times A
+        
+
+========================================================
+## Problem Set 2
+```{r}
+factormat <- function(A){
+  U <- A
+  i <- 1
+  j <- 1
+  k <- 1
+  n <- nrow(A)
+  c <- ncol(A)
+  E <- diag(n)
+  l = list()
+   
+  while (j < n){
+  # is entire col zero
+    if(all(U[,j] == 0)){
+      j = j + 1
+    }
+     i = j
+     
+     while (i <= n ){
+     
+       if (U[i,j] == 1){
+         i = i + 1 # go to next row
+         }
+       E[i,j] <- ifelse(U[i,j] == -1, U[i,j],-U[i,j]) # case of neg. 1
+ 
+       l[k] <- list(E)  #l is list of elemination matrices
+       k = k + 1
+       U <- E %*% U
+       E <- diag(n)
+       i <- i + 1
+    }
+    j = j + 1
+  }
+ 
+  i = length(l)
+  L = 0
+  X = 0
+  while(i >= 1){
+    if(i == length(l)) {
+      L <- solve(l[[i]])
+    } else {
+      X <- l[[i]]
+      L <- solve(X) %*% L
+    }
+    i = i -1 
+  }
+ 
+  r = list("L" = L, "U" = U, "Z" = L %*% U)
+ 
+  return(r)
+}
+
+A <- matrix(c(1,2,3,1,1,3,2,0,1),nrow = 3)
+
+print("test system:")
+(f = factormat(A))
+f$Z == A
+
+
+
+
+```
+### a factorized matrix
+
+$$ 
+
+A = \begin{bmatrix}
+1 & 2 & 3 & 4\\
+1 & 3 & 2 & 4\\
+5 & 4 & 3 & 2\\
+4 & 2 & 2& 1 \end{bmatrix}\\
+$$
+
+```{r}
+A <- matrix(c(1,2,3,4,1,3,2,4,5,4,3,2,4,2,2,1),nrow = 4)
+
+f = (factormat(A))
+print("Z = L X U")
+f$Z == A
+
+```
