@@ -1,11 +1,17 @@
+---
+title: "CBowersoxAssign5b"
+output: html_document
+---
 
 # Week 5 Assignment
+
 Cheryl Bowersox 
 IS 605 - 1
 3/1/15
 
-========================================================
+
 ## Problem Set 1
+
 ```{r}
 # function for converting matrix format from R
 convmat <- function(X){
@@ -34,44 +40,20 @@ A <- matrix(c(1,1,1,1,0,1,3,4), nrow = 4)
 b <- matrix(c(0,8,8,19), nrow = 4)
 
 
-
 ```
 $$
-
   A =
   `r convmat(A)`\\ 
- 
+$$
+
+$$
   A^TA = 
   `r convmat(t(A) %*% A)`\\
-  
+$$
+
+$$
   A^T\vec{b} = 
-  `r convmat(t(A) %*% b)`\\
-  
-$$
-
-###  least squares solution and squared error
-  
-``` {r}
-x <- solve(t(A)%*%A) %*% t(A) %*% b
-
-eb <- b - (A %*% x)
-E <- sum(eb^2)
-```
-
-The least squares solution  for
-$$
-  \vec{b} = `r convmat(b)`\\
-  
-  
-  \hat{x} = 
-  `r convmat(x)`\\ 
-$$  
-
-
-The resulting squared error $E_b$ is:
-$$
-  E_b = `r E`
-  
+  `r convmat(t(A) %*% b)`\\  
 $$
 
 ### system is consistent and solvable for p
@@ -86,30 +68,36 @@ E <- round(sum(e^2), 4)
 ```
 
 The least squares solution  for
+
 $$
- \vec{p} = `r convmat(p)` is\\
- 
- 
+ \vec{p} = `r convmat(p)`\\
+$$
+
+
+$$
  \hat{x} = 
   `r convmat(x)`\\
-  
 $$
+  
+
 With error vector $\vec{e}$ of zero:
+
 $$
   \vec{e} = 
   `r convmat(e)`\\
 $$
 
-the zero error indicates that $\hat{x} = \vec{x}$, and $\vec{p} $ is consistent
+the zero error indicates that $\hat{x} = \vec{x}$, and $\vec{p}$ is consistent
 
 
 ### e is for orthoganol to p  for C(A)
 The error vector $\vec{e}$ is the difference between $\vec{b}$ and $\vec{p}$:
+
 $$
   \vec{e} = `r convmat(b - p)`\\
 $$
 
-The dot product of $\vec{e} and \vec{p}$ is `r round(sum(e*p), 6)` 
+The dot product of $\vec{e}\$ and $\vec{p}$ is `r round(sum(e*p), 6)` 
 e is orthogonal to p
 
 ```{r}
@@ -121,6 +109,7 @@ while (i <= ncol(A)){
 }
 
 ```
+
 The dot products of $\vec{e}$ across the columns of A are
 
 `r B`
@@ -129,7 +118,73 @@ $\vec{e}$ is orthogonal to columns of A
 
 
 
-========================================================
 ## Problem Set 2
 
+### reading data into matrix A and b
 
+```{r}
+#import data
+# Read matrix data from data on github allows others to access data
+library(RCurl)
+options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
+fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/auto-mpg.data"
+data <- getURL(fileurl)
+df <- read.table(text = data)
+
+names(df) <- c("displace", "horsepwr", "weight", "acceler", "mpg")
+
+A <- as.matrix(df[1:4])
+
+b <- as.matrix(df[5])
+```
+
+### solving for x using least squares
+
+```{r}
+
+leastsq <- function(A,b){
+  # function takes values in matrix A and creates least squares solution for matrix b
+  # where A is an n x m matrix and b is a n x 1 matrix
+  # returns:
+  #   X, the best-fit solution
+  #   e, the error vector
+  #   E, the squared error
+  
+  X <- solve(t(A)%*%A) %*% t(A) %*% b
+  e <- b - (A %*% X)
+  E <- sum(e^2)
+  sol <- list("X" = X, "e" = e, "E" = E)
+  
+  return(sol)
+}
+
+#rounded for display in equation
+ls <- leastsq(A,b)
+X <- round(ls$X, 4)
+E <- round(ls$E, 4)
+
+#MSE
+MSE <- E/nrow(A)
+```
+
+Coefficients: 
+
+$$
+  \hat{X} = 
+  `r convmat(X)`\\
+$$
+
+
+Equation:
+
+$$
+  \hat{mpg} = \\
+  `r X[1]` \times displacement + \\
+  `r X[2]` \times horsepower + \\
+  `r X[3]` \times weight + \\
+  `r X[4]` \times acceleration\\
+$$
+
+Squared Error: `r E`
+
+Mean Square Error: `r MSE`

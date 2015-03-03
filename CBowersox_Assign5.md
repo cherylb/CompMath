@@ -140,7 +140,7 @@ $$
 \\
 $$
 
-the zero error indicates that $\hat{x} = \vec{x}$, and $\vec{p} $ is consistent
+the zero error indicates that $\hat{x} = \vec{x}$, and $\vec{p}$ is consistent
 
 
 ### e is for orthoganol to p  for C(A)
@@ -155,7 +155,7 @@ $$
 \\
 $$
 
-The dot product of $\vec{e} and \vec{p}$ is 0 
+The dot product of $\vec{e}\$ and $\vec{p}$ is 0 
 e is orthogonal to p
 
 
@@ -177,5 +177,82 @@ $\vec{e}$ is orthogonal to columns of A
 
 ========================================================
 ## Problem Set 2
+### reading data into matrix A and b
+
+```r
+#import data
+# Read matrix data from data on github allows others to access data
+library(RCurl)
+```
+
+```
+## Loading required package: bitops
+```
+
+```r
+options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
+fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/auto-mpg.data"
+data <- getURL(fileurl)
+df <- read.table(text = data)
+
+names(df) <- c("displace", "horsepwr", "weight", "acceler", "mpg")
+
+A <- as.matrix(df[1:4])
+
+b <- as.matrix(df[5])
+```
+
+### solving for x using least squares
 
 
+```r
+leastsq <- function(A,b){
+  # function takes values in matrix A and creates least squares solution for matrix b
+  # where A is an n x m matrix and b is a n x 1 matrix
+  # returns:
+  #   X, the best-fit solution
+  #   e, the error vector
+  #   E, the squared error
+  
+  X <- solve(t(A)%*%A) %*% t(A) %*% b
+  e <- b - (A %*% X)
+  E <- sum(e^2)
+  sol <- list("X" = X, "e" = e, "E" = E)
+  
+  return(sol)
+}
+
+#rounded for display in equation
+ls <- leastsq(A,b)
+X <- round(ls$X, 4)
+E <- round(ls$E, 4)
+
+#MSE
+MSE <- E/nrow(A)
+```
+
+Coefficients: 
+$$
+\hat{X} = 
+\begin{bmatrix} 
+ -0.03 \\ 
+ 0.1571 \\ 
+ -0.0062 \\ 
+ 1.9973 \\ 
+ \end{bmatrix} 
+\\
+$$
+
+Equation:
+$$
+  \hat{mpg} = 
+  -0.03 \times displacement +\\
+  0.1571 \times horsepower + \\
+  -0.0062 \times weight + \\
+  1.9973 \times acceleration\\
+  
+$$
+
+Squared Error: 1.3101429\times 10^{4}
+
+Mean Square Error: 33.4220133
