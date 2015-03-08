@@ -1,0 +1,119 @@
+---
+title: "CBowersoxAssign6"
+author: "Cheryl Bowersox"
+date: "Saturday, March 07, 2015"
+output: html_document
+---
+# Week 5 Assignment
+
+Cheryl Bowersox 
+IS 605 - 1
+3/8/15
+
+
+## Problem Set 1
+
+### Number of possible outcomes of roll die 3 times
+n = 6
+possible outcomes (order matters) = $6^3$ = `r 6^3` 
+
+possible outcomes (order does not matter ) = 
+
+$$
+  n = 6\\
+  r = 3\\
+  t = \frac{(6+3-1)!}{3!(6-1)!}\\
+  t = 56
+$$
+
+
+### Probablity of sum = 3 when roll dice twice
+
+$$
+  n = 6\\
+  p(x) = \frac{1}{6}\\
+  p(x,y) = \frac{1}{6^2} = \frac{1}{36}\\
+  2*p(x,y) = \frac{1}{18}
+$$
+
+### Probablity of same birthday
+The probablity that any two people out a of population r share a birthday is
+
+p = 1 - probablity that no two people share a birthday
+
+q = probablity no people share
+
+
+For 25 people:
+$$
+  n = 365\\
+  k = 25\\
+  q = {_{25}P_{365}} \times \frac{1}{365^{25}}
+$$
+
+```{r}
+cperm <- function(n,k){
+  choose(n,k) * factorial(k)
+  }
+
+d <- cperm(365,25)/(365^25)
+```
+
+$$
+  p =1 - `r d` = `r 1 - d`
+$$
+
+
+For 50 people: 
+$$
+  n = 365\\
+  k = 50\\
+    q = {_{50}P_{365}} \times \frac{1}{365^{50}}
+$$
+```{r}
+d <- cperm(365,50)/365^50
+```
+
+$$
+  p =1 - `r d` = `r 1 - d`
+$$
+
+
+## Problem Set 2
+
+### read data and calculate word and word pair probablities 
+
+```{r}
+library(stringr)
+
+#get doc
+library(RCurl)
+options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
+fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/assign6.sample.txt"
+data <- getURL(fileurl)
+doc  <-readChar(fileName, file.info(fileName)$size)
+
+
+
+singlewrd <- function(w,doc){
+  
+  #function takes single word and full document data and finds 
+  # number of time a word is contained in the doc
+  s <- paste("\\<",w,"\\>", sep ="")
+  a <- "\\W+"
+  cfull <- sum(str_count(doc, s))  #count number of full words
+  cpart <- sum(str_count(doc, w)) # count number of times it appears as part of a word
+  ctot <- sum(str_count(doc, a)
+  
+}
+
+```
+
+
+
+
+
+```{r}
+
+```
+
