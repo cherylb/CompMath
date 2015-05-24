@@ -1,0 +1,258 @@
+---
+title: "Final"
+author: "Cheryl Bowersox"
+date: "Friday, May 22, 2015"
+output: html_document
+---
+
+## Review of Essential Concepts
+
+```{r}
+library(pracma)
+
+# function for converting matrix format from R
+convmat <- function(X){
+  M <- paste("\\begin{bmatrix}","\n")
+  
+  i = 1
+  n = nrow(X)
+  if(is.null(n)){
+    n <- length(X)
+    while(i <= n){
+       M <- paste(M, paste(round(X[i],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }else{
+    while(i <= n){
+       M <- paste(M, paste(round(X[i,],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }
+  M <- paste(M, "\\end{bmatrix}","\n", collapse = "")
+  return (M)
+}
+
+mag <- function(x){
+  return(sqrt(sum(x*x)))
+}
+
+proj <- function(v, u){
+  #projection of v onto u
+ return(sum(v*u)/mag(v)^2 * v)
+}
+```
+
+```{r}
+A <- matrix(c(1,2,-2,1,-1,1,3,5,-2,5,-9,4), nrow = 3)
+str <- convmat(A)
+```
+
+$$
+  A = 
+  `r convmat(A)`\\
+$$
+
+**1. Rank of matrix A**
+  The rank of matrix A is equal to the number of non-zero rows in row echelon form
+
+$$
+  `r convmat(rref(A))`\\
+$$
+has 3 non-zero rows and has a rank of 3
+
+**2. Transpose of A**
+  The Q = transpose of A:
+  
+$$
+  Q = 
+  `r convmat(t(A))`\\
+$$
+
+**3. Orthonormal basis vectors**
+normalized vi * vi  = 1
+orthogonal to each other  vi * vj = 0
+```{r}
+# proj(u1) onto v2  = u1 dot v2 over mag(v2) squared times v2
+v1 <- A[,1]
+v2 <- A[,2]
+v3 <- A[,3]
+v4 <- A[,4]
+
+u1 <- v1
+u2 <- v2 - proj(u1,v2)
+u3 <- v3 - proj(u1,v3) - proj(u2,v3)
+u4 <- v4 - proj(u1,v4) - proj(u2,v4) - proj(u3,v4)
+
+e1 <- u1/mag(u1)
+e2 <- u2/mag(u2)
+e3 <- u3/mag(u3)
+e4 <- u4/mag(u4)
+B <- as.matrix(cbind(e1,e2,e3,e4))
+```
+
+$$
+  B = 
+  `r convmat(B)`\\
+$$
+
+  are an orthonormal basis for matrix A\\
+
+
+**4. Characteristic polynomial of A**
+```{r}
+A <- matrix(c(4,1,-1,0,-2,0,5,3,6), nrow = 3)
+M <- rref(A)
+```
+$$
+  A = 
+  `r convmat(A)`\\
+$$
+
+$$
+  B =
+  \lambda `r convmat(diag(3))` A\\
+  Det(B) = -\lambda^3 + 8\lambda^2 -9\lambda - 58\\
+$$
+
+**eigenvectors & values of A  **
+```{r}
+vals <- eigen(A)$values
+vecs <- eigen(A)$vectors
+```
+Eigenvectors of A are
+$$
+   E1 = 
+   `r convmat(vecs)`\\
+$$
+
+Eigenvalues of A are
+$$
+  E2 = 
+  `r vals`\\
+$$
+
+
+**6 high bias and high variance**
+
+High bias means that the model itself does not fit the true underlying function very well, the actual points in the given data may be close to values predicted by the model (low variance) but the model is different from the true shape of the data. A good example of this is a higher order polynomial that reduces the variance by accounting for the fluctuations in the data, but does not actually align well to the true nature of the function.
+A model with high variance may more closely follow the underlying function, but data points within the selected sample are not very close to the model results.
+
+**7 mean value of repeated samples**
+
+The mean value of repeated samples from a uniform distribution will have a normal distribution
+
+**8 Derivativef(x) = $e^xcos^2(x)$**  
+h(x) = $e^x$  
+g(x) = $cos^2(x)$  
+h'(x)= $e^x$  
+g'(x) = $-2cos(x)sin(x) = -sin(2x)$  
+f(x) = h'(x)g(x) + h(x)g'(x)  
+f(x) = $e^xcos^2(x) - e^xsin(2x)$  
+f(x) = $e^x(cos^2(x) - sin(2x))$  
+
+**9 Derivative f(x) = $e^{sin(x^{2})}$**  
+g(x) = $e^x$  
+g'(x) = $e^x$  
+h(x) = $sin(x)$  
+h'(x) = $cos(x)$  
+m(x) = $x^2$  
+m'(x) = $2x$  
+f'(x) = $e^{sin(x^{2})}cos(x^2)2x$  
+
+**10 integrate F = $\int e^xcos(x)\,dx$**  
+
+u = $e^x$
+du = $e^x$
+dv = $cos(x)$
+v = $sin(x)$
+
+
+F = $\int u dv\,dx = u v - \int v du\,dx$  
+F = $\int(e^x)cos(x)\,dx = e^xsin(x) - \int(e^x)sin(x)\,dx$  
+F = $e^xsin(x) - e^xcos(x) + \int(e^x)cos(x)\,dx$  
+$2\int(e^x)cos(x)\,dx  = e^xsin(x)  - e^xcos(x)$  
+F = $1/2e^x(sin(x) + cos(x))$    
+
+
+## mini assignments
+
+** 1 Bayes rule **
+G = good score
+B = bad score
+D = default rate
+
+*assuming scores can either be good or bad*
+P(B) = .3
+P(G) = .7
+P(D|G) = .04
+P(D|B) = .20
+P(D) = P(B)P(D|B) + P(G)P(D|G) = .088
+
+P(B|D) =  $\frac{P(D|B)P(B)}{P(D)}$
+P(B|D) = $\frac{.2 * .3}{.088}$
+P(B|D) = 'r .06/.088'
+
+
+```{r}
+library(gRain)
+
+score <- c("good", "bad") # credit can be good or bad
+fault <- c("no", "yes") # loan default no / yes
+c <- cptable(~credit, values = c(.7,.3), levels = score) # score, good / bad
+d <- cptable(~default|credit, values = c(.96,.04,.80,.20), levels = fault) #defaut no/yes given credit good /bad 
+plist <- compileCPT(list(c,d))
+plist$default
+
+net1 <-grain(plist)
+```
+
+*looking at probablity of bad credit overall and given a default*
+```{r}
+querygrain(net1, nodes=c("credit"), type="marginal")
+
+#Evidence that loan is default
+net12 <- setEvidence(net1, nslist=list(default = "yes"))
+#New prob. difficulty 
+querygrain(net12, nodes=c("credit"), type="marginal")
+````
+Probability of bad credit increase from 30% to about 68% given a default, this result aligns with the previously calculated amount.
+
+
+**2.  Central Limit Therom**
+
+* Creating a random sample of log-normal distribution with mean 40 and sd 10:
+```{r}
+sample <- function(n){
+  x <- rlnorm(n,meanlog=40,sdlog = 10)
+  return(x)
+}
+
+#  single sample of size 100 gives
+sample.mean <- mean(log(sample(100)))
+sample.sd <- sd(log(sample(100)))
+```
+Both the sample mean and sample standard deviation are close to the theoretical mean: 
+The mean of sample size 100 is `r sample.mean`
+The standard deviation of the sample size 100 is `r sample.sd`
+
+* Sample of 100 drawn from population with mean 50 and sd 25. Because of the large sample size the sample mean will be close to 50, the sample sd will be close to 25. The larger the sample size the closer they will become. 
+
+* Probablity that mean of sample is > 45
+The sample mean is normally distributed 
+$\mu_{\bar{x}} = 40$ and $\sigma_{bar{x}} = \frac{25}{\sqrt{100}= 2.5$
+P(x > 45) = 0.0228
+
+
+**3 Sampleing from a function
+
+```{r}
+sampe.b <- function(n){
+  # n is the sample size to return
+  vals <- sample(1:10,2,replace = True))#values in range 0 to 2
+  p <- sapply(vals,px2)  #prob of vals
+  ret<- sample(vals, n, replace = TRUE, prob = p)
+  return(ret)
+}
+  in <- sample(1,[1,100])
+ x <-rbinom(1,10,.3) 
+```

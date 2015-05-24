@@ -85,35 +85,126 @@ $$
 
 ```{r}
 library(stringr)
+library(RCurl)
+library(qdap)
+library(scales)
+
+# user input
+
+nonum <- function(x){
+  x <- strsplit(x, " ")
+  x <- lapply(x,replace_number)
+  x <-gsub("[[:punct:]]", "", toString(unlist(x)))
+  return(x)
+}
+
+singleword <- function(w,doc){
+  #function takes single word and full document data and finds 
+  # number of time a word is contained in the doc
+  w <- nonum(tolower(gsub("[[:punct:]]", "", w)))
+  cpart <- sum(str_count(doc, w)) # count number of times it appears in any form 
+  return(cpart)
+}
+
+wordpairs <- function(w1, w2,doc){
+  #function takes a word pair and full document data and finds 
+  # number of time a word pair is contained in the doc
+  w1 <- nonum(tolower(gsub("[[:punct:]]", "", w1)))
+  w2 <- nonum(tolower(gsub("[[:punct:]]", "", w2)))
+  s1 <- paste("\\<",w1, " ",w2 ,"\\>", sep ="")
+  s3 <- paste("\\<",w1, " ",w2 ,"\\>", sep ="")
+  s2 <- paste("\\<",w2, " ",w1 ,"\\>", sep ="")
+  c1 <- sum(str_count(doc, s1))  #count number of full words
+  c2 <- sum(str_count(doc, s2))
+  return(c1 + c2)
+}
 
 #get doc
-library(RCurl)
 options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
 fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/assign6.sample.txt"
 data <- getURL(fileurl)
-doc  <-readChar(fileName, file.info(fileName)$size)
+
+docTxt <- iconv(data, "UTF-8", "ASCII", sub="?")
+doc  <- gsub("[\n]", "", data)
+#clean up doc
+doc <- tolower(gsub("[[:punct:]]", "", doc))
+doc <- gsub("[^[:alnum:] ]", "", doc)
 
 
+# counting before convert numbers to words to treat numbers with more than one digit
+# as a single word
+n <-  sum(str_count(doc, "\\w+"))  
+np <-  n - 1    # of possible adjacent pairs
+doc <- replace_number(doc)
 
-singlewrd <- function(w,doc){
+findprob1 <- function(w,doc){
+  # w is single word to find
+  # doc is doc to examine
+  p <- singleword(w,doc)
+ 
+  if(n != 0){
+    ps1 <- p/n
+  }
   
-  #function takes single word and full document data and finds 
-  # number of time a word is contained in the doc
-  s <- paste("\\<",w,"\\>", sep ="")
-  a <- "\\W+"
-  cfull <- sum(str_count(doc, s))  #count number of full words
-  cpart <- sum(str_count(doc, w)) # count number of times it appears as part of a word
-  ctot <- sum(str_count(doc, a)
+  if(ps1 == 0){
+    ps1 <- 0
+    }else{
+    ps1 <- percent(ps1/ 100)
+    }
+
   
+  #output
+  print(paste("found", p,"occurances of",  w, "as whole or part of a word"))
+  print(paste("probablity found as whole or part of a word: ",ps1))
 }
 
+findprob2 <- function(u,doc){
+  # u is pair of words, seperated by comma
+  # doc is document to examine
+  
+  w1 <- unlist(strsplit(u,","))[1]
+  w1 <- gsub("^\\s+|\\s+$", "", w1)
+  w2 <- unlist(strsplit(u,","))[2]
+  w2 <- gsub("^\\s+|\\s+$", "", w2)
+  
+  p <- wordpairs(w1, w2,doc)
+  pw = 0
+  if(np != 0){
+    pw <- p/np
+  }
+  if(pw == 0){
+    pw <- 0
+    }else{
+    pw <- percent(pw/ 100)
+    }
+  
+  print(paste("found", p, " occurances of the word pair (", w1, w2,")"))
+  print(paste("probablity is:", pw))
+}
 ```
-
-
-
-
+Finding single word 
+inmate
+monkey
+he
+she
 
 ```{r}
+findprob1("inmate", doc)
+findprob1("monkey", doc)
+findprob1("he",doc)
+findprob1("she",doc)
 
+```
+finding pairs of words:
+said he
+5 monkey
+need we
+is not
+
+```{r}
+findprob2("said, he", doc)
+findprob2("5,monkey", doc)
+findprob2("need, we", doc)
+findprob2("is, not", doc)
 ```
 

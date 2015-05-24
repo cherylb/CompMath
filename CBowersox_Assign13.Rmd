@@ -1,0 +1,182 @@
+---
+title: "Assignment 13"
+author: "Cheryl Bowersox"
+date: "Saturday, May 02, 2015"
+output: html_document
+---
+
+## compute the derivitave using limits
+$f(x) = x^3 + x^2$
+
+```{r}
+
+fofx <- function(a){
+  f <- a^2 +a^3
+  return(f)
+}
+limatx <- function(x){
+  lim <- c()
+  small.h <- c()
+  h <- .1
+  # limit of f as h--> 0
+  while (h > .000000001){
+    lim <- c((fofx(x+h)-fofx(x))/h, lim, (fofx(x-h)-fofx(x))/-h) # 0 from right
+    small.h <- c(h, small.h, -h)  #  
+    h <- h/5
+  }
+  r <- data.frame(small.h, lim)
+  return(r)
+}
+```
+The result of computing
+ $$\lim_{x\to0}\frac{f(x-h) - f(x)}{h}$$
+for a given x and very small values of h approaching 0
+converges to a single value as h gets closer to 0.
+The value of that convergence is the derivative f at x, this can be demonstrated both numerically and graphically
+
+
+An example where x = 2 gives the following results as h approaches 0
+```{r}
+x <- 2
+vals <- limatx(x)
+df <- round(vals[1,2],6)
+```
+Numerically the mean and median of the resulting values converge to a single value as h approaches 0 from right and left
+```{r}
+summary(vals)
+```
+Resulting values for small positive h are:
+```{r}
+head(vals,5)
+```
+
+Resulting values for small negative h are:
+```{r}
+tail(vals,5)
+```
+
+The resulting graph of the values demonstrates the convergence at `r df`
+
+```{r, echo=FALSE}
+plot(vals)
+```
+
+The derivative f'(x) where x = 2 is `r df`
+
+
+Example for x = 4.2:
+
+Summary of results
+```{r}
+summary(limatx(4.2))
+```
+
+Plot of results
+
+```{r, echo=FALSE}
+plot(limatx(4.2))
+```
+
+The derivative f'(x) where x = 4.2 is `r round(limatx(4.2)[1,2],6)`
+
+
+## compute the area under the curve for x = [1,3]
+
+$f(x) = 3x^2 + 4x$
+```{r}
+
+fofx2 <- function(a){
+  f <- 3 * a^2 + 4 * a
+  return(f)
+}
+limatx2 <- function(a,b,dx){  #where a is begining of interval, dx is interval
+  int <- b - a #size of total interval
+  lim <- 0
+  x <- a
+  if(dx < int){
+    while ( x < b){
+      lim <- fofx2(x + dx) * dx + lim
+      x <- x + dx
+    }
+  }
+ return(lim)
+}
+v <- c(1:6)
+deltax <- 1/10^v
+
+i = 1
+result <- c()
+
+while(i < 7){
+  result <- c(result,limatx2(1,3,deltax[i]))
+  i<- i +1
+}
+conv <- round(result[6],0)
+dfint <- data.frame(deltax,result)
+```
+
+For very small intervals the area under f(x) converges to `r conv`
+
+```{r}
+dfint
+```
+
+Plotting the interval and the resulting value gives:
+```{r, echo=FALSE}
+plot(dfint)
+```
+
+## Solving through analysis
+
+### Integration by parts
+$$
+  F = \int\sin(x)\cos(x)\,dx\\
+  f(x) = \sin(x)\\
+  f'(x) = \cos(x)\\
+  g'(x) = \cos(x)\\
+  g(x) = \sin(x)\\
+  F = f(x)g(x) - \int f'(x)g(x)\,dx\\
+  F = \sin(x)\sin(x) - \int\cos(x)\sin(x)\,dx\\
+  F = \int\sin(x)\cos(x)\,dx = sin(x)^2- \int\cos(x)\sin(x)\,dx\\
+  2\int\sin(x)\cos(x)\,dx = sin(x)^2 + C\\
+  F = \frac{1}{2}\sin(x)^2 + C
+$$
+
+### Integration by parts - 2
+$$
+  F = \int x^2 e^x\,dx\\
+  f(x) = x^2\\
+  f'(x) = 2x\\
+  g'(x) = e^x\\
+  g(x) = e^x\\
+  F = x^2e^x - \int 2xe^x\,dx\\
+  F = x^2e^x - 2xe^x + 2\int e^x\,dx\\
+  F = x^2e^x - 2xe^x +2e^x + C\\
+  F = e^x(x^2 - 2x + 2) + C\\
+$$
+
+### Product of functions
+$$ 
+ h'(x) =  \frac{d}{dx}(x cos(x))\\
+  f(x) = x\\
+  g(x) = cos(x)\\
+  f'(x) = 1\\
+  g'(x) = -sin(x)\\
+  h'(x) = cos(x) - x*sin(x)\\
+$$
+
+### Chain rule
+$$
+  h'(x) =  \frac{d}{dx}(e^{x^4})\\
+  f(g) = e^g\\
+  g(x) = x^4\\
+  f'(g) = e^g\\
+  g'(x) = 4x^3\\
+  h'(x) = f'(g(x))*g'(x)\\
+  h'(x) = e^{x^4}*4x^3 = 4x^3e^{x^4}
+$$
+  
+  h'(x) = 
+  
+
+

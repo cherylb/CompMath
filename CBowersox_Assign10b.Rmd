@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+author: "Cheryl Bowersox"
+date: "Friday, April 03, 2015"
+output: html_document
+---
+# Week 10 Assignment
+Cheryl Bowersox 
+IS 605 - 1
+4/4/15
+
+========================================================
+
+### Create Martrix A for 6 site universe
+$A_{ij} = \frac{1}{|P_i|}$ if link from i to j exists, 0 otherwise
+
+```{r}
+library('igraph')
+# function for converting matrix format from R
+
+convmat <- function(X){
+  M <- paste("\\begin{bmatrix}","\n")
+  
+  i = 1
+  n = nrow(X)
+  if(is.null(n)){
+    n <- length(X)
+    while(i <= n){
+       M <- paste(M, paste(round(X[i],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }else{
+    while(i <= n){
+       M <- paste(M, paste(round(X[i,],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }
+  M <- paste(M, "\\end{bmatrix}","\n", collapse = "")
+  return (M)
+}
+
+```
+defin A, 6 X 6 matrix
+
+```{r}
+#define A, 6 X 6 matrix 
+
+A = diag(6)
+A[,1] = c(0, .5, .5, 0, 0, 0)
+A[,2] = c(0, 0, 1, 0, 0,0)
+A[,3] = c(.25, .25, 0, 0, .25, .25)
+A[,4] = c(0,0,0,0,.5, .5)
+A[,5] = c(0, 0, 0, .5, 0, .5)
+A[,6] = c(0,0,.5,.5,0, 0)
+
+l = cat(convmat(A))
+```
+
+$$
+  A =
+  `r convmat(A)`\\ 
+$$
+

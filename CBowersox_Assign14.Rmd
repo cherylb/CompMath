@@ -1,0 +1,109 @@
+---
+title: "CBowersox_Assign14"
+author: "Cheryl Bowersox"
+date: "Saturday, May 09, 2015"
+output: pdf_document
+---
+## Taylor Series expansions
+
+### function:  $f(x) = \frac{1}{1-x} x\in(-1,1)$
+
+$$
+  f(x) = (1-x)^{-1}\\    
+  f'(x) = (1-x)^{-2}\\
+  f''(x) = 2(1-x)^{-3}\\
+  f'''(x) = 6(1-x)^{-4}\\
+  ...\\
+  f^{(n)}(x) = n!(1-x)^{-(n+1)}\\
+$$
+
+$$
+  a = 0\\
+  f(a) = 1\\
+  f'(a) = 1\\
+  f''(a) = 2\\
+  f'''(a) = 6\\
+  ...\\
+  f^{(n)}(a) = n!\\
+$$
+
+$$
+  f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x - a)^{n}\\
+  a = 0:\\
+  f(x) = \sum_{n=0}^{\infty} \frac{n!}{n!}(x - 0)^{n}\\
+  f(x) = \sum_{n=0}^{\infty} x^{n}\\
+$$
+  in general $a \in (-1,1) \\$
+$$
+  f(x) = \sum_{n=0}^{\infty} \frac{n!(1-a)^{-(n+1)}}{n!}(x - a)^{n}\\
+  f(x) = \sum_{n=0}^{\infty} \frac{(x-a)^{n}}{(1-a)^{n+1}}
+$$
+
+
+### function: $f(x) = e^{x}$
+
+$$
+  f(x) = e^{x}\\    
+  f'(x) = e^{x}\\
+  f''(x) = e^{x}\\
+  f'''(x) = e^{x} \\
+  ...\\
+  f^{(n)}(x) = e^x\\
+$$
+
+$$
+  a = 0\\
+  f(a) = 1\\
+  f'(a) = 1\\
+  f''(a) = 1\\
+  f'''(a) = 1\\
+  ...\\
+  f^{(n)}(a) = 1\\
+$$
+
+$$
+  f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x - a)^{n}\\
+  f(x) = \sum_{n=0}^{\infty} \frac{1}{n!}(x - 0)^{n}\\
+  f(x) = \sum_{n=0}^{\infty} \frac{x^{n}}{n!}\\
+$$
+  in general $a \in R \\$
+$$
+  f(x) = \sum_{n=0}^{\infty} \frac{e^a}{n!}(x - a)^{n}\\
+$$
+
+
+
+### function:  $f(x) = ln(1+x) x\in(-1,1)$
+
+$$
+  f(x) = ln(1+x)\\
+  f'(x) = (1+x)^{-1}\\
+  f''(x) = -(1+x)^{-2}\\
+  f'''(x) = 2(1+x)^{-3} \\
+  f^{(4)}(x) = -6(1+x)x^{-4} \\
+  ...\\
+  f^{(n)}(x) = -1^{n+1}(n-1)!(1+x)^{-n},  n>0\\
+$$
+
+$$
+  a = 0\\
+  f(a) = 0\\   
+  f'(a) = 1\\
+  f''(a) = -1\\
+  f'''(a) = 2\\
+  f'''(a) = -6\\
+  ...\\
+  f^{(n)}(a) = -1^{n+1}(n-1)!,  n>0\\
+$$
+
+$$
+  f(x) = \sum_{n=1}^{\infty} \frac{f^{(n)}(a)}{n!}(x - a)^{n}\\
+  f(x) = \sum_{n=1}^{\infty} \frac{-1^{n+1}(n-1)!}{n!}(x - 0)^{n}\\
+  f(x) = \sum_{n=1}^{\infty} \frac{-1^{n+1}x^{n}}{n}\\
+$$
+
+in general $a \in (-1,1) \\$
+
+$$
+  f(x) = ln(1+a) + \sum_{n=1}^{\infty} \frac{-1^{n-1}(1+a)^{-n}}{n}(x - a)^{n}\\
+$$

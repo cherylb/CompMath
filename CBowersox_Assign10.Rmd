@@ -1,0 +1,193 @@
+# Week 10 Assignment
+Cheryl Bowersox 
+IS 605 - 1
+4/4/15
+
+========================================================
+## Problem Set 1
+
+### Create Martrix A for 6 site universe
+$A_{ij} = \frac{1}{|P_i|}$ if link from i to j exists, 0 otherwise
+
+```{r}
+
+library(igraph)
+# function for converting matrix format from R
+convmat <- function(X){
+  M <- paste("\\begin{bmatrix}","\n")
+  
+  i = 1
+  n = nrow(X)
+  if(is.null(n)){
+    n <- length(X)
+    while(i <= n){
+       M <- paste(M, paste(round(X[i],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }else{
+    while(i <= n){
+       M <- paste(M, paste(round(X[i,],4), collapse = " & "),"\\\\ \n")
+       i = i + 1
+    }
+  }
+  M <- paste(M, "\\end{bmatrix}","\n", collapse = "")
+  return (M)
+}
+```
+
+```{r}
+#define A, 6 X 6 matrix 
+
+A = diag(6)
+A[,1] = c(0, .5, .5, 0, 0, 0)
+A[,2] = c(0, 0, 1, 0, 0,0)
+A[,3] = c(.25, .25, 0, 0, .25, .25)
+A[,4] = c(0,0,0,0,.5, .5)
+A[,5] = c(0, 0, 0, .5, 0, .5)
+A[,6] = c(0,0,.5,.5,0, 0)
+```
+Matrix for graph is
+
+$$
+  A =
+  `r convmat(A)`\\ 
+$$
+
+### Matrix B with decay
+
+$B = d\times A + \frac{1-d}{n}$
+d is the probablity a user will use a link on the current page
+
+1-d being the probablity the user will jump to another page
+
+n is the finite probablity of reaching a web page at random
+
+In this case setting d = .85 and n = 6 gives
+```{r}
+d <-.85
+n <- 6
+B <- d * A + (1-d)/n
+```
+
+$$
+  B =
+  `r convmat(B)`\\ 
+$$
+
+### converging for large number of iterations
+k is the number of iterations
+
+r is uniform rank vector
+
+$r = B^k\times r$ for sufficiently large k
+
+setting k to 10, 50, 100 gives:
+```{r}
+i <- 1
+r = rep(1/n, n)  # intial value for r is uniform distribution
+i = 1
+while(i <= 10){
+  r <- B %*% r
+  i <- i +1
+  }
+k10 <- r
+ 
+while(i <= 50){
+  r <- B %*% r
+  i <- i +1
+  }
+k50 <- r
+
+while(i <= 100){
+  r <- B %*% r
+  i <- i +1
+  }
+k100 <- r
+```
+when k is 10 
+
+$$
+  r =
+  `r convmat(k10)`\\ 
+$$
+
+
+when k is 50 
+
+$$
+  r =
+  `r convmat(k50)`\\ 
+$$
+
+when k is 100 
+
+$$
+  r =
+  `r convmat(k100)`\\ 
+$$
+
+r is converging for suffienctly large k:
+  
+$$
+  r50 - r100  =
+  `r convmat(k50-k100)`\\ 
+$$
+
+### eigenvalues and eigenvectors of B
+```{r}
+evalB <- eigen(B)$values
+evecB <- eigen(B)$vectors
+```
+1 is an eigenvalue of B:
+$$
+  `r convmat(evalB)`\\ 
+$$
+
+1 is the maximum eigenvalue of B:
+$$
+  `r max(Re(evalB))`\\ 
+$$
+
+Corresponding eigenvector of B is:
+$$
+  `r convmat(Re(evecB[,1]))`\\ 
+$$
+
+ which is scaler multiple of 
+$$
+  `r convmat(k100)`\\ 
+$$
+
+
+
+```{r}
+evalB1 <- Re(evalB[1])
+dif<- Re((evecB[,1]/k100 )[1])
+
+```
+$$
+  for \lambda = 1\\
+  \vec{X}  =  `r convmat(Re(evecB[,1]))` = `r dif` \times `r convmat(k100)`= 
+  `r   convmat(dif * k100)`\\
+$$
+
+###using igraph and page.rank package
+
+```{r}
+g <- graph.formula(1-+2,1+-+3, 3 +-+ 2, 3+-+6, 3-+5, 6 +-+4, 5-+6, 5 +-+ 4)
+rnew  <- page.rank(g, directed = TRUE)$vector
+rnew <- matrix(rnew[order(names(rnew))])
+
+plot(g)
+```
+
+The r vector  calculated by the page.rank function is the same as that calculated using 100 itterations of matrix B
+
+  New r calculated using page.rank =
+$$  
+  `r convmat(rnew)`\\
+$$
+  r calculated using itterations of B =
+$$
+  `r convmat(k100)`\\
+$$

@@ -1,0 +1,57 @@
+---
+title: "Assignment_11"
+author: "Cheryl Bowersox"
+date: "Sunday, April 26, 2015"
+output: html_document
+---
+
+# Ploynomial models and cross validation using auto data
+
+
+### creating models
+```{r}
+#import data
+# Read auto data from data on github allows others to access data
+library(RCurl)
+library(stats)
+library(boot)
+options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
+fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/auto-mpg.data"
+data <- getURL(fileurl)
+df <- read.table(text = data)
+
+names(df) <- c("disp", "hpwr", "wt", "acc", "mpg")
+
+# create fits order 1 - 8
+fito1 <- glm(mpg ~ poly(disp + hpwr + wt + acc,1), data = df)
+fito2 <- glm(mpg ~ poly(disp + hpwr + wt + acc,2), data = df)
+fito3 <- glm(mpg ~ poly(disp + hpwr + wt + acc,3), data = df)
+fito4 <- glm(mpg ~ poly(disp + hpwr + wt + acc,4), data = df)
+fito5 <- glm(mpg ~ poly(disp + hpwr + wt + acc,5), data = df)
+fito6 <- glm(mpg ~ poly(disp + hpwr + wt + acc,6), data = df)
+fito7 <- glm(mpg ~ poly(disp + hpwr + wt + acc,7), data = df)
+fito8 <- glm(mpg ~ poly(disp + hpwr + wt + acc,8), data = df)
+
+
+# get cv errors
+cv.err <- c()
+cv.err[1] <- cv.glm(df, fito1)$delta[1]
+cv.err[2] <- cv.glm(df, fito2)$delta[1]
+cv.err[3] <- cv.glm(df, fito3)$delta[1]
+cv.err[4] <- cv.glm(df, fito4)$delta[1]
+cv.err[5] <- cv.glm(df, fito5)$delta[1]
+cv.err[6] <- cv.glm(df, fito6)$delta[1]
+cv.err[7] <- cv.glm(df, fito7)$delta[1]
+cv.err[8] <- cv.glm(df, fito8)$delta[1]
+```
+
+### graphing the cross-validation estimate of prediction error by model degree
+
+```{r, echo=FALSE}
+degree <- 1:8
+plot(1:8, cv.err, type = "b")
+print(cv.err)
+
+```
+
+

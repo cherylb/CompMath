@@ -146,13 +146,12 @@ $$
 
 Characteristic polynomial is:
 
-$$
-\begin{align}
-(\lambda - 1) \times [(\lambda - 4)(\lambda - 6) - 0)]  = 0 \\
 
-\lambda^3 - 11\lambda^2 + 34\lambda - 24 = 0\\
-\lambda = {1, 4, 6}\\
-\end{align}
+  $(\lambda - 1) \times [(\lambda - 4)(\lambda - 6) - 0)]  = 0$
+
+  $\lambda^3 - 11\lambda^2 + 34\lambda - 24 = 0$
+  $\lambda = {1, 4, 6}$
+
 $$
 
 $\lambda$ = 1

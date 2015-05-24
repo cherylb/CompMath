@@ -121,6 +121,147 @@ d &lt;- cperm(365,25)/(365^25)</code></pre>
 \]</span></p>
 </div>
 </div>
+<div id="problem-set-2" class="section level2">
+<h2>Problem Set 2</h2>
+<div id="read-data-and-calculate-word-and-word-pair-probablities" class="section level3">
+<h3>read data and calculate word and word pair probablities</h3>
+<pre class="r"><code>library(stringr)
+library(RCurl)</code></pre>
+<pre><code>## Loading required package: bitops</code></pre>
+<pre class="r"><code>library(qdap)</code></pre>
+<pre><code>## Loading required package: ggplot2
+## Loading required package: qdapDictionaries
+## Loading required package: qdapRegex
+## Loading required package: qdapTools
+## Loading required package: RColorBrewer
+## 
+## Attaching package: 'qdap'
+## 
+## The following object is masked from 'package:base':
+## 
+##     Filter</code></pre>
+<pre class="r"><code>library(scales)
+
+# user input
+
+nonum &lt;- function(x){
+  x &lt;- strsplit(x, &quot; &quot;)
+  x &lt;- lapply(x,replace_number)
+  x &lt;-gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, toString(unlist(x)))
+  return(x)
+}
+
+singleword &lt;- function(w,doc){
+  #function takes single word and full document data and finds 
+  # number of time a word is contained in the doc
+  w &lt;- nonum(tolower(gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, w)))
+  cpart &lt;- sum(str_count(doc, w)) # count number of times it appears in any form 
+  return(cpart)
+}
+
+wordpairs &lt;- function(w1, w2,doc){
+  #function takes a word pair and full document data and finds 
+  # number of time a word pair is contained in the doc
+  w1 &lt;- nonum(tolower(gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, w1)))
+  w2 &lt;- nonum(tolower(gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, w2)))
+  s1 &lt;- paste(&quot;\\&lt;&quot;,w1, &quot; &quot;,w2 ,&quot;\\&gt;&quot;, sep =&quot;&quot;)
+  s3 &lt;- paste(&quot;\\&lt;&quot;,w1, &quot; &quot;,w2 ,&quot;\\&gt;&quot;, sep =&quot;&quot;)
+  s2 &lt;- paste(&quot;\\&lt;&quot;,w2, &quot; &quot;,w1 ,&quot;\\&gt;&quot;, sep =&quot;&quot;)
+  c1 &lt;- sum(str_count(doc, s1))  #count number of full words
+  c2 &lt;- sum(str_count(doc, s2))
+  return(c1 + c2)
+}
+
+#get doc
+options(RCurlOptions = list(cainfo = system.file(&quot;CurlSSL&quot;, &quot;cacert.pem&quot;, package = &quot;RCurl&quot;)))
+fileurl= &quot;https://raw.githubusercontent.com/cherylb/CompMath/master/assign6.sample.txt&quot;
+data &lt;- getURL(fileurl)
+
+docTxt &lt;- iconv(data, &quot;UTF-8&quot;, &quot;ASCII&quot;, sub=&quot;?&quot;)
+doc  &lt;- gsub(&quot;[\n]&quot;, &quot;&quot;, data)
+#clean up doc
+doc &lt;- tolower(gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, doc))
+doc &lt;- gsub(&quot;[^[:alnum:] ]&quot;, &quot;&quot;, doc)
+
+
+# counting before convert numbers to words to treat numbers with more than one digit
+# as a single word
+n &lt;-  sum(str_count(doc, &quot;\\w+&quot;))  
+np &lt;-  n - 1    # of possible adjacent pairs
+doc &lt;- replace_number(doc)
+
+findprob1 &lt;- function(w,doc){
+  # w is single word to find
+  # doc is doc to examine
+  p &lt;- singleword(w,doc)
+ 
+  if(n != 0){
+    ps1 &lt;- p/n
+  }
+  
+  if(ps1 == 0){
+    ps1 &lt;- 0
+    }else{
+    ps1 &lt;- percent(ps1/ 100)
+    }
+
+  
+  #output
+  print(paste(&quot;found&quot;, p,&quot;occurances of&quot;,  w, &quot;as whole or part of a word&quot;))
+  print(paste(&quot;probablity found as whole or part of a word: &quot;,ps1))
+}
+
+findprob2 &lt;- function(u,doc){
+  # u is pair of words, seperated by comma
+  # doc is document to examine
+  
+  w1 &lt;- unlist(strsplit(u,&quot;,&quot;))[1]
+  w1 &lt;- gsub(&quot;^\\s+|\\s+$&quot;, &quot;&quot;, w1)
+  w2 &lt;- unlist(strsplit(u,&quot;,&quot;))[2]
+  w2 &lt;- gsub(&quot;^\\s+|\\s+$&quot;, &quot;&quot;, w2)
+  
+  p &lt;- wordpairs(w1, w2,doc)
+  pw = 0
+  if(np != 0){
+    pw &lt;- p/np
+  }
+  if(pw == 0){
+    pw &lt;- 0
+    }else{
+    pw &lt;- percent(pw/ 100)
+    }
+  
+  print(paste(&quot;found&quot;, p, &quot; occurances of the word pair (&quot;, w1, w2,&quot;)&quot;))
+  print(paste(&quot;probablity is:&quot;, pw))
+}</code></pre>
+<p>Finding single word inmate monkey he she</p>
+<pre class="r"><code>findprob1(&quot;inmate&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 5 occurances of inmate as whole or part of a word&quot;
+## [1] &quot;probablity found as whole or part of a word:  0.00379%&quot;</code></pre>
+<pre class="r"><code>findprob1(&quot;monkey&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 0 occurances of monkey as whole or part of a word&quot;
+## [1] &quot;probablity found as whole or part of a word:  0&quot;</code></pre>
+<pre class="r"><code>findprob1(&quot;he&quot;,doc)</code></pre>
+<pre><code>## [1] &quot;found 135 occurances of he as whole or part of a word&quot;
+## [1] &quot;probablity found as whole or part of a word:  0.102%&quot;</code></pre>
+<pre class="r"><code>findprob1(&quot;she&quot;,doc)</code></pre>
+<pre><code>## [1] &quot;found 9 occurances of she as whole or part of a word&quot;
+## [1] &quot;probablity found as whole or part of a word:  0.00682%&quot;</code></pre>
+<p>finding pairs of words: said he 5 monkey need we is not</p>
+<pre class="r"><code>findprob2(&quot;said, he&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 4  occurances of the word pair ( said he )&quot;
+## [1] &quot;probablity is: 0.00303%&quot;</code></pre>
+<pre class="r"><code>findprob2(&quot;5,monkey&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 0  occurances of the word pair ( 5 monkey )&quot;
+## [1] &quot;probablity is: 0&quot;</code></pre>
+<pre class="r"><code>findprob2(&quot;need, we&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 2  occurances of the word pair ( need we )&quot;
+## [1] &quot;probablity is: 0.00152%&quot;</code></pre>
+<pre class="r"><code>findprob2(&quot;is, not&quot;, doc)</code></pre>
+<pre><code>## [1] &quot;found 1  occurances of the word pair ( is not )&quot;
+## [1] &quot;probablity is: 0.000759%&quot;</code></pre>
+</div>
+</div>
 </div>
 
 

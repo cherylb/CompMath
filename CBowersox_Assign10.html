@@ -61,226 +61,260 @@ img {
 
 
 
-<div id="week-3-assignment" class="section level1">
-<h1>Week 3 Assignment</h1>
-<p>Cheryl Bowersox IS 605 - 1 2/15/15</p>
+<div id="week-10-assignment" class="section level1">
+<h1>Week 10 Assignment</h1>
+<p>Cheryl Bowersox IS 605 - 1 4/4/15</p>
 <p>======================================================== ## Problem Set 1</p>
-<div id="rank-of-matrix-a" class="section level3">
-<h3>1 Rank of matrix A</h3>
-<p><span class="math">\[
-A = \begin{bmatrix}
-1 &amp; 2 &amp; 3 &amp; 4\\
--1 &amp; 0 &amp; 1 &amp; 3\\
-0 &amp; 1 &amp; -2 &amp; 1\\
-5 &amp; 4 &amp; -2&amp; 3\end{bmatrix}\\
-\]</span></p>
-<pre class="r"><code>solvmat &lt;- function(A){
-
-  i &lt;- 1
-  j &lt;- 1
-  n &lt;- nrow(A)
-  c &lt;- ncol(A)
+<div id="create-martrix-a-for-6-site-universe" class="section level3">
+<h3>Create Martrix A for 6 site universe</h3>
+<p><span class="math">\(A_{ij} = \frac{1}{|P_i|}\)</span> if link from i to j exists, 0 otherwise</p>
+<pre class="r"><code>library(igraph)
+# function for converting matrix format from R
+convmat &lt;- function(X){
+  M &lt;- paste(&quot;\\begin{bmatrix}&quot;,&quot;\n&quot;)
   
-  while (i &lt;= n ){
-  
-    # is entire col zero
-      if(all(A[,j] == 0)){
-        j = j +1
-      }
-      
-      if(A[i,j] == 0){
-        #find a non-zero
-        w = which(A[,j] == abs(max(A[,j])))
-        #swap rows
-        s &lt;- A[w,]
-        A[w,] &lt;- A[i,]
-        A[i,] &lt;- s
-      }
-      
-      # pivot  = 1
-      p &lt;- A[i,j] # pivot
-      A[i,] &lt;- A[i,]/p
-      
-      #transform other rows
-      k &lt;- 1
-      
-      while (k &lt;= n){
-        if (k != i){
-          A[k,] = A[k,] - A[i,] * A[k,j]
-        }
-        k &lt;- k + 1
-      }
-    i &lt;- i + 1
-    j &lt;- j + 1
+  i = 1
+  n = nrow(X)
+  if(is.null(n)){
+    n &lt;- length(X)
+    while(i &lt;= n){
+       M &lt;- paste(M, paste(round(X[i],4), collapse = &quot; &amp; &quot;),&quot;\\\\ \n&quot;)
+       i = i + 1
     }
-  
-  
-  B &lt;- A
-  return(B)
+  }else{
+    while(i &lt;= n){
+       M &lt;- paste(M, paste(round(X[i,],4), collapse = &quot; &amp; &quot;),&quot;\\\\ \n&quot;)
+       i = i + 1
+    }
+  }
+  M &lt;- paste(M, &quot;\\end{bmatrix}&quot;,&quot;\n&quot;, collapse = &quot;&quot;)
+  return (M)
 }</code></pre>
-<p>The rank of matrix A is equal to the number of non-zero rows in reduced echelon form</p>
-<pre class="r"><code>A &lt;- matrix(c(1, -1, 0, 5, 2, 0, 1, 4, 3, 1, -2, -2, 4, 3, 1, -3),nrow = 4)
-T &lt;-  solvmat(A)
+<pre class="r"><code>#define A, 6 X 6 matrix 
 
+A = diag(6)
+A[,1] = c(0, .5, .5, 0, 0, 0)
+A[,2] = c(0, 0, 1, 0, 0,0)
+A[,3] = c(.25, .25, 0, 0, .25, .25)
+A[,4] = c(0,0,0,0,.5, .5)
+A[,5] = c(0, 0, 0, .5, 0, .5)
+A[,6] = c(0,0,.5,.5,0, 0)</code></pre>
+<p>Matrix for graph is</p>
+<p><span class="math">\[
+  A =
+  \begin{bmatrix} 
+ 0 &amp; 0 &amp; 0.25 &amp; 0 &amp; 0 &amp; 0 \\ 
+ 0.5 &amp; 0 &amp; 0.25 &amp; 0 &amp; 0 &amp; 0 \\ 
+ 0.5 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0.5 \\ 
+ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0.5 &amp; 0.5 \\ 
+ 0 &amp; 0 &amp; 0.25 &amp; 0.5 &amp; 0 &amp; 0 \\ 
+ 0 &amp; 0 &amp; 0.25 &amp; 0.5 &amp; 0.5 &amp; 0 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+</div>
+<div id="matrix-b-with-decay" class="section level3">
+<h3>Matrix B with decay</h3>
+<p><span class="math">\(B = d\times A + \frac{1-d}{n}\)</span> d is the probablity a user will use a link on the current page</p>
+<p>1-d being the probablity the user will jump to another page</p>
+<p>n is the finite probablity of reaching a web page at random</p>
+<p>In this case setting d = .85 and n = 6 gives</p>
+<pre class="r"><code>d &lt;-.85
+n &lt;- 6
+B &lt;- d * A + (1-d)/n</code></pre>
+<p><span class="math">\[
+  B =
+  \begin{bmatrix} 
+ 0.025 &amp; 0.025 &amp; 0.2375 &amp; 0.025 &amp; 0.025 &amp; 0.025 \\ 
+ 0.45 &amp; 0.025 &amp; 0.2375 &amp; 0.025 &amp; 0.025 &amp; 0.025 \\ 
+ 0.45 &amp; 0.875 &amp; 0.025 &amp; 0.025 &amp; 0.025 &amp; 0.45 \\ 
+ 0.025 &amp; 0.025 &amp; 0.025 &amp; 0.025 &amp; 0.45 &amp; 0.45 \\ 
+ 0.025 &amp; 0.025 &amp; 0.2375 &amp; 0.45 &amp; 0.025 &amp; 0.025 \\ 
+ 0.025 &amp; 0.025 &amp; 0.2375 &amp; 0.45 &amp; 0.45 &amp; 0.025 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+</div>
+<div id="converging-for-large-number-of-iterations" class="section level3">
+<h3>converging for large number of iterations</h3>
+<p>k is the number of iterations</p>
+<p>r is uniform rank vector</p>
+<p><span class="math">\(r = B^k\times r\)</span> for sufficiently large k</p>
+<p>setting k to 10, 50, 100 gives:</p>
+<pre class="r"><code>i &lt;- 1
+r = rep(1/n, n)  # intial value for r is uniform distribution
+i = 1
+while(i &lt;= 10){
+  r &lt;- B %*% r
+  i &lt;- i +1
+  }
+k10 &lt;- r
+ 
+while(i &lt;= 50){
+  r &lt;- B %*% r
+  i &lt;- i +1
+  }
+k50 &lt;- r
 
-i&lt;- 1
-rank &lt;- 0
-while (i &lt;= nrow(A)){
-  if(!(all(A[i,] == 0))){ rank = rank + 1}
-  i &lt;- i+1
-  }</code></pre>
-<p>In this case the reduced for of A is equal to</p>
-<pre class="r"><code>T</code></pre>
-<pre><code>##      [,1] [,2] [,3] [,4]
-## [1,]    1    0    0    0
-## [2,]    0    1    0    0
-## [3,]    0    0    1    0
-## [4,]    0    0    0    1</code></pre>
-<p>which has 4 non-zero rows and so has a rank of 4</p>
-</div>
-<div id="min-and-max-rank-of-an-nxm-matrix-where-m-n" class="section level3">
-<h3>2 - min and max rank of an nXm matrix where m &gt; n</h3>
-<ol style="list-style-type: decimal">
-<li><p>matrix A is n x m with m &gt; n</p></li>
-<li><p>the maximum number of linearly independent rows of A is the minumum of (n, m), in this case n</p></li>
-<li><p>If n &lt; m and A is non-zero then A must have at least 1 independent row</p></li>
-<li><p>the rank of A is between 1 and n</p></li>
-</ol>
-</div>
-<div id="the-rank-of-matix-b" class="section level3">
-<h3>3 - the rank of matix B</h3>
+while(i &lt;= 100){
+  r &lt;- B %*% r
+  i &lt;- i +1
+  }
+k100 &lt;- r</code></pre>
+<p>when k is 10</p>
 <p><span class="math">\[
-B = \begin{bmatrix}
-1 &amp; 2 &amp; 1\\
-3 &amp; 6 &amp; 3\\
-2 &amp; 4 &amp; 2\end{bmatrix}\\
+  r =
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1103 \\ 
+ 0.2464 \\ 
+ 0.1863 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+\\ 
 \]</span></p>
-<ol style="list-style-type: decimal">
-<li><p>The vectors <span class="math">\(B{i1}\)</span> and <span class="math">\(B{i3}\)</span> are equal and are linearly dependent: <span class="math">\(B{i1} = 1 \times B{i3}\)</span></p></li>
-<li><p>The vectors <span class="math">\(B{i1}\)</span> and <span class="math">\(B{i2}\)</span> are linearly dependent: <span class="math">\(B{i1} = 2 \times B{i3}\)</span></p></li>
-<li><p>The rank of <span class="math">\(B\)</span> is 1</p></li>
-</ol>
-<p>======================================================== ## Problem Set 2</p>
-</div>
-<div id="find-the-eigenvalues-of-a" class="section level3">
-<h3>find the eigenvalues of A</h3>
+<p>when k is 50</p>
 <p><span class="math">\[
-A = \begin{bmatrix}
-1 &amp; 2 &amp; 3\\
-0 &amp; 4 &amp; 5\\
-0 &amp; 0 &amp; 6 \end{bmatrix}\\
+  r =
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+\\ 
 \]</span></p>
+<p>when k is 100</p>
 <p><span class="math">\[
-\begin{align}
-A\vec{X} = \lambda\vec{X} \\
+  r =
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+<p>r is converging for suffienctly large k:</p>
+<p><span class="math">\[
+  r50 - r100  =
+  \begin{bmatrix} 
+ 0 \\ 
+ 0 \\ 
+ 0 \\ 
+ 0 \\ 
+ 0 \\ 
+ 0 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+</div>
+<div id="eigenvalues-and-eigenvectors-of-b" class="section level3">
+<h3>eigenvalues and eigenvectors of B</h3>
+<pre class="r"><code>evalB &lt;- eigen(B)$values
+evecB &lt;- eigen(B)$vectors</code></pre>
+<p>1 is an eigenvalue of B: <span class="math">\[
+  \begin{bmatrix} 
+ 1+0i \\ 
+ 0.5064+0i \\ 
+ -0.425+0i \\ 
+ -0.425+0i \\ 
+ -0.2532+0.1081i \\ 
+ -0.2532-0.1081i \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+<p>1 is the maximum eigenvalue of B: <span class="math">\[
+  1\\ 
+\]</span></p>
+<p>Corresponding eigenvector of B is: <span class="math">\[
+  \begin{bmatrix} 
+ -0.1785 \\ 
+ -0.2543 \\ 
+ -0.5685 \\ 
+ -0.43 \\ 
+ -0.3612 \\ 
+ -0.5147 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+<p>which is scaler multiple of <span class="math">\[
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+\\ 
+\]</span></p>
+<pre class="r"><code>evalB1 &lt;- Re(evalB[1])
+dif&lt;- Re((evecB[,1]/k100 )[1])</code></pre>
+<p><span class="math">\[
+  for \lambda = 1\\
+  \vec{X}  =  \begin{bmatrix} 
+ -0.1785 \\ 
+ -0.2543 \\ 
+ -0.5685 \\ 
+ -0.43 \\ 
+ -0.3612 \\ 
+ -0.5147 \\ 
+ \end{bmatrix} 
+ = -2.307202 \times \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+= 
+  \begin{bmatrix} 
+ -0.1785 \\ 
+ -0.2543 \\ 
+ -0.5685 \\ 
+ -0.43 \\ 
+ -0.3612 \\ 
+ -0.5147 \\ 
+ \end{bmatrix} 
 \\
-(\lambda I{3} - A )\vec{X}  = 0 \\
+\]</span></p>
+</div>
+<div id="using-igraph-and-page.rank-package" class="section level3">
+<h3>using igraph and page.rank package</h3>
+<pre class="r"><code>g &lt;- graph.formula(1-+2,1+-+3, 3 +-+ 2, 3+-+6, 3-+5, 6 +-+4, 5-+6, 5 +-+ 4)
+rnew  &lt;- page.rank(g, directed = TRUE)$vector
+rnew &lt;- matrix(rnew[order(names(rnew))])
+
+plot(g)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAAWlBMVEUAAAAAAIsAAJ0AAK0AK74ATM8cAIscAJ0cAK0cTM8cbN4yAIsybN4yie5HK4tHpe5aTItaTK1awO5sbJ1spd5swO5+ia1+pb5+pd5+wM9+wN5+wO6pqan///+ZpIpmAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3d63YTOZeAYadpmBkYaIZMwwDO/d/mQBwc18mxd1wqbel5fnz0YjlZUqF6v5LLh90DACG7rQcAkJWAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQJCAAgQJKECQgAIECShAkIAmtzvaeiTQH6ddZruxrQcEfXHK5XVo5s8jCYXCnHBpDet5TOjWw4KOON+SmsmnhEJhzrac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" title alt width="672" /></p>
+<p>The r vector calculated by the page.rank function is the same as that calculated using 100 itterations of matrix B</p>
+<p>New r calculated using page.rank = <span class="math">\[  
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
 \\
-B = \lambda I{3} - A \\
-\end{align}
-\]</span></p>
-<p><span class="math">\[
-B = \begin{bmatrix}
-(\lambda - 1) &amp; 2 &amp; 3\\
-0 &amp; (\lambda - 4) &amp; 5\\
-0 &amp; 0 &amp; (\lambda - 6) \end{bmatrix}\\
-\]</span></p>
-<p>det(B): <span class="math">\[
-\begin{vmatrix}
-(\lambda - 1) &amp; 2 &amp; 3\\
-0 &amp; (\lambda - 4) &amp; 5\\
-0 &amp; 0 &amp; (\lambda -4) \end{vmatrix}  = 0 \\
-\]</span></p>
-<p>Characteristic polynomial is:</p>
-<p><span class="math">\((\lambda - 1) \times [(\lambda - 4)(\lambda - 6) - 0)] = 0\)</span></p>
-<p><span class="math">\(\lambda^3 - 11\lambda^2 + 34\lambda - 24 = 0\)</span> <span class="math">\(\lambda = {1, 4, 6}\)</span></p>
-<p>$$</p>
-<p><span class="math">\(\lambda\)</span> = 1</p>
-<p><span class="math">\[
-B \vec{X} = 0\\
-\]</span></p>
-<p><span class="math">\[
-B = \begin{bmatrix}
-(1 - 1) &amp; -2 &amp; -3\\
-0 &amp; (1 - 4) &amp; -5\\
-0 &amp; 0 &amp; (1 - 6) \end{bmatrix}\\
-\]</span></p>
-<p><span class="math">\[
-\begin{bmatrix}
-0 &amp; -2 &amp; 3\\
-0 &amp; -3 &amp; -5\\
-0 &amp; 0 &amp; -5 \end{bmatrix}\\
-\]</span></p>
-$$
-
-<p>$$</p>
-<p><span class="math">\[
-\vec{X} = \begin{bmatrix}
-  x\\
-  0 \\
-  0 \end{bmatrix} = c
-\begin{bmatrix}
-  1\\
-  0 \\
-  0 \end{bmatrix}   for \lambda = 1\\
-\]</span></p>
-<p><span class="math">\(\lambda\)</span> = 4</p>
-<p><span class="math">\[
-B \vec{X} = 0\\
-\]</span></p>
-<p><span class="math">\[
-B = \begin{bmatrix}
-(4 - 1) &amp; -2 &amp; -3\\
-0 &amp; (4 - 4) &amp; -5\\
-0 &amp; 0 &amp; (4 - 6) \end{bmatrix}\\
-\]</span></p>
-<p><span class="math">\[
-\begin{bmatrix}
-3&amp; -2 &amp; -3\\
-0 &amp; 0 &amp; -5\\
-0 &amp; 0 &amp; -2 \end{bmatrix}\\
-\]</span></p>
-$$
-
-<p>$$</p>
-<p><span class="math">\[
-\vec{X} = \begin{bmatrix}
-  x\\
-  3/2x \\
-  0 \end{bmatrix}  = c
-\begin{bmatrix}
-  1\\
-  3/2 \\
-  0 \end{bmatrix}   for \lambda = 4\\
-\]</span></p>
-<p><span class="math">\(\lambda\)</span> = 6</p>
-<p><span class="math">\[
-B \vec{X} = 0\\
-\]</span></p>
-<p><span class="math">\[
-B = \begin{bmatrix}
-(6 - 1) &amp; -2 &amp; -3\\
-0 &amp; (6 - 4) &amp; -5\\
-0 &amp; 0 &amp; (6 - 6) \end{bmatrix}\\
-\]</span></p>
-<p><span class="math">\[
-\begin{bmatrix}
-5 &amp; -2 &amp; -3\\
-0 &amp; 2 &amp; -5\\
-0 &amp; 0 &amp; 0 \end{bmatrix}\\
-\]</span></p>
-$$
-
-<p>$$</p>
-<p><span class="math">\[
-\vec{X} = \begin{bmatrix}
-  8/5x\\
-  5/2x \\
-  x \end{bmatrix}  = c
-\begin{bmatrix}
-  8/5\\
-  5/2 \\
-  1\end{bmatrix}   for \lambda = 6\\
+\]</span> r calculated using itterations of B = <span class="math">\[
+  \begin{bmatrix} 
+ 0.0774 \\ 
+ 0.1102 \\ 
+ 0.2464 \\ 
+ 0.1864 \\ 
+ 0.1566 \\ 
+ 0.2231 \\ 
+ \end{bmatrix} 
+\\
 \]</span></p>
 </div>
 </div>

@@ -1,0 +1,239 @@
+---
+title: "Week 11 Assignment"
+author: "Cheryl Bowersox"
+date: "Friday, April 24, 2015"
+output: html_document
+---
+
+# Heart Rate
+
+Evaluating the model maxHR = 220 - age for given data
+ 
+```{r}
+library(ggplot2)
+# data
+age <- c(18,23,25,35,65, 54, 34, 56, 72, 19, 23, 42, 18, 39, 37)
+maxHR <- 
+  c(202,186,187, 180, 156, 169, 174, 172, 153, 199, 193, 174, 198, 183,178)
+calcmaxHR <- 220 - age
+
+fit <- lm(maxHR ~ age)
+summary(fit)
+yhat <- fitted(fit)
+
+# plots of fit
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(fit)
+
+b1 <- summary(fit)[4]$coefficients[2,1]
+b0 <- summary(fit)[4]$coefficients[1,1]
+p1 <- summary(fit)[4]$coefficients[2,4]
+p0 <- summary(fit)[4]$coefficients[1,4]
+df <- data.frame(cbind(age,maxHR,yhat, calcmaxHR))
+
+
+```
+
+The linear model obtained from the regression is
+$$ maxHR = `r b1` \times age + `r b0`$$
+
+Both the age coefficient `r b1` and the intercept value `r b0` have a small p-values of 
+`r p1` and `r p0` indicating they are both significant in modeling the dependent variable, with a confidence level greater than 99%. 
+
+The model calculated from the sample is fairly  close to the assumed model.
+
+```{r, echo=FALSE}
+# plot fitted values
+(g4<- ggplot(df, aes(x = age, y = maxHR)) + 
+  geom_point(aes(colour = maxHR) )+
+  geom_smooth(method = "lm",formula = y ~ x, colour = "#003333") +
+  xlab("age") + ylab("maxHR")+
+  ggtitle("Max Heart Rate by Age with fitted model")+
+  scale_color_gradient("maxHR", low = "#99FFCC", high = "#003333"))
+ 
+ (g5<- ggplot(df, aes(x = age, y = maxHR)) + 
+  geom_point(aes(colour = maxHR) )+
+  geom_line(aes(y = calcmaxHR))+
+  xlab("age") + ylab("maxHR")+
+  ggtitle("Max Heart Rate by Age with given model"))
+#scale_color_gradient("maxHR", low = "#99FFCC", high = "#003333"))
+```
+
+
+# Regression of Cars Data with mpg as the dependant variable
+```{r}
+#import data
+# Read matrix data from data on github allows others to access data
+library(RCurl)
+options(RCurlOptions = list(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl")))
+fileurl= "https://raw.githubusercontent.com/cherylb/CompMath/master/auto-mpg.data"
+data <- getURL(fileurl)
+df <- read.table(text = data)
+
+names(df) <- c("displace", "horsepwr", "weight", "acceler", "mpg")
+
+
+# modeling with a sample of the data
+
+dfsamp <- df[sample(nrow(df),40),]
+carsfit1 <- lm(mpg ~ displace + horsepwr + weight + acceler, data = dfsamp)
+
+yhat <- fitted(carsfit1)
+
+# plots of fit
+layout(matrix(c(1,2,3,4),2,2))
+plot(carsfit1)
+
+b0 <- summary(carsfit1)[4]$coefficients[1,1]
+b1 <- summary(carsfit1)[4]$coefficients[2,1]
+b2 <- summary(carsfit1)[4]$coefficients[3,1]
+b3 <- summary(carsfit1)[4]$coefficients[4,1]
+b4 <- summary(carsfit1)[4]$coefficients[5,1]
+p0 <- summary(carsfit1)[4]$coefficients[1,4]
+p1 <- summary(carsfit1)[4]$coefficients[2,4]
+p2 <- summary(carsfit1)[4]$coefficients[3,4]
+p3 <- summary(carsfit1)[4]$coefficients[4,4]
+p4 <- summary(carsfit1)[4]$coefficients[5,4]
+dfsamp$yhat  <- yhat
+
+#("displace", "horsepwr", "weight", "acceler", "mpg")
+
+c0 <- confint(carsfit1, '(Intercept)', level=0.95)
+c1 <- confint(carsfit1, 'displace', level=0.95)
+c2 <- confint(carsfit1, 'horsepwr', level=0.95)
+c3 <- confint(carsfit1, 'weight', level=0.95)
+c4 <- confint(carsfit1, 'acceler', level=0.95)
+
+dfconf <- data.frame(rbind(c0, c1, c2, c3, c4))
+dfconf$coef <- c(b0, b1, b2, b3, b4)
+dfconf$pval <- c(p0, p1, p2, p3, p4)
+names(dfconf)[2] <- 'interval.low'
+names(dfconf)[3] <- 'interval.up'
+
+
+```
+
+The linear model obtained from the regression using a sample size of 40 is
+$$ mpg = `r b1`\times displacement  + `r b2`\times horsepower + `r b3`\times weight + `r b4` \times acceleration + `r b0`$$
+
+
+The weight coefficient `r b3` and the intercept value `r b0` have small p-values of 
+`r p3` and `r p0` indicating they are both significant in modeling the dependent variable, with a significance level greater than 95%.   The coefficient for horsepower of `r b2` has a significance level of greater than 90%, but due to the high correlation with weight may not significantly improve the model
+
+```
+The summary below of the model shows the standard error and p-value for each of the independent variables used in the model
+```{r}
+summary(carsfit1)[4]
+```
+
+Calculating a 95% confidence interval for each coefficient gives
+
+```{r}
+(dfconf)
+```
+
+
+```{r, echo=FALSE}
+# compare  pairwise values for this sample
+library(GGally)
+ggpairs(dfsamp[,1:5])
+
+```
+
+
+# modeling Cars with all of the data
+```{r}
+
+carsfit2 <- lm(mpg ~ displace + horsepwr + weight + acceler, data = df)
+
+yhat <- fitted(carsfit2)
+
+# plots of fit
+layout(matrix(c(1,2,3,4),2,2))
+plot(carsfit2)
+
+b0 <- summary(carsfit2)[4]$coefficients[1,1]
+b1 <- summary(carsfit2)[4]$coefficients[2,1]
+b2 <- summary(carsfit2)[4]$coefficients[3,1]
+b3 <- summary(carsfit2)[4]$coefficients[4,1]
+b4 <- summary(carsfit2)[4]$coefficients[5,1]
+p0 <- summary(carsfit2)[4]$coefficients[1,4]
+p1 <- summary(carsfit2)[4]$coefficients[2,4]
+p2 <- summary(carsfit2)[4]$coefficients[3,4]
+p3 <- summary(carsfit2)[4]$coefficients[4,4]
+p4 <- summary(carsfit2)[4]$coefficients[5,4]
+df$yhat  <- yhat
+
+#("displace", "horsepwr", "weight", "acceler", "mpg")
+
+c0 <- confint(carsfit2, '(Intercept)', level=0.95)
+c1 <- confint(carsfit2, 'displace', level=0.95)
+c2 <- confint(carsfit2, 'horsepwr', level=0.95)
+c3 <- confint(carsfit2, 'weight', level=0.95)
+c4 <- confint(carsfit2, 'acceler', level=0.95)
+
+dfconf <- data.frame(rbind(c0, c1, c2, c3, c4))
+dfconf$coef <- c(b0, b1, b2, b3, b4)
+dfconf$pval <- c(p0, p1, p2, p3, p4)
+names(dfconf)[1] <- 'interval.low'
+names(dfconf)[2] <- 'interval.up'
+
+
+```
+
+
+The linear model obtained from the regression using the entire sample is:
+$$ mpg = `r b1`\times displacement  + `r b2`\times horsepower + `r b3`\times weight + `r b4` \times acceleration + `r b0`$$
+
+The weight coefficient `r b3`, horsepower coefficient `r b2` and the intercept value `r b0` have small p-values of 
+`r p3`, `r p2` and `r p0` indicating they are significant in modeling the dependent variable, with a significance level greater than 99%.   The coefficient for horsepower of `r b2` has a significance level of greater than 90% but since it has a high correlation with weight may not provide any information gain.
+
+The summary below of the model shows the standard error and p-value for each of the independent variables used in the model
+```{r}
+summary(carsfit2)[4]
+```
+
+Calculating a 95% confidence interval for each coefficient gives
+```{r}
+head(dfconf)
+
+# comparing all data pairwise:
+
+ggpairs(df[,1:5])
+
+
+# model with just weight and horsepower
+carsfit3 <- lm(df$mpg ~ df$weight + df$horsepwr)
+b0 <- summary(carsfit3)[4]$coefficients[1,1]
+b1 <- summary(carsfit3)[4]$coefficients[2,1]
+b2 <- summary(carsfit3)[4]$coefficients[3,1]
+p0 <- summary(carsfit3)[4]$coefficients[1,4]
+p1 <- summary(carsfit3)[4]$coefficients[2,4]
+p2 <- summary(carsfit3)[4]$coefficients[3,4]
+
+c0 <- confint(carsfit3, '(Intercept)', level=0.95)
+c1 <- confint(carsfit3, 'df$weight', level=0.95)
+c2 <- confint(carsfit3, 'df$horsepwr', level=0.95)
+
+
+dfconf <- data.frame(rbind(c0, c1, c2))
+dfconf$coef <- c(b0, b1, b2)
+dfconf$pval <- c(p0, p1, p2)
+names(dfconf)[1] <- 'interval.low'
+names(dfconf)[2] <- 'interval.up'
+```
+
+Conclusion: The two most significant predictors of the mpg for the given data are the weight and horsepower of the car.  Using all the available variables in a linear model produces an R-squared value of `r summary(carsfit2)[8]$r.squared` while using just weight and horsepower give a very similar value for R-squared of `r summary(carsfit3)[8]$r.squared`
+
+The linear model using just the weight and horsepower becomes:
+$$ mpg = `r b1`\times weight  + `r b2`\times horsepower + `r b0`$$
+The summary below of the model shows the standard error and p-value for each of the independent variables used in the model
+```{r}
+summary(carsfit3)[4]
+```
+
+Calculating a 95% confidence interval for each coefficient gives
+```{r}
+head(dfconf)
+
+

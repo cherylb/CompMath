@@ -1,0 +1,83 @@
+---
+title: "CBowersoxAssign8"
+author: "Cheryl Bowersox"
+date: "Saturday, March 14, 2015"
+output: html_document
+---
+# Week 8 Assignment
+
+Cheryl Bowersox 
+IS 605 - 1
+3/22/15
+
+## Problem Set 1 - 
+
+### probablity collegue takes the bus today
+Assuming 30 day month:
+
+P(Bus) = $\frac{2}{3}$
+
+P(Train) = $\frac{1}{3}$
+
+P(OnTime|Bus) = $\frac{1}{2}$
+
+P(OnTime|Train) = $\frac{9}{19}$
+
+P(OnTime) = P(OnTime|Bus) + P(OnTime|NotBus)
+
+P(OnTime) = $\frac{2}{3}$ P(OnTime|Bus) + $\frac{1}{3}$ P(OnTime|Train) = $\frac{19}{30}$
+
+P(Bus|OnTime) = $\frac{P(OnTime|Bus) \times P(Bus)}{P(OnTime)}$
+
+P(Bus|OnTime) = $\frac{1}{2} \times \frac{2}{3} \times \frac{30}{19}$
+
+P(Bus|OnTime) = $\frac{10}{19}$ or `r 10/19`
+
+
+## Problem Set Two
+
+### Build network
+```{r}
+library(gRain)
+
+lh <- c("low", "high") # simple high/low for most
+ny <- c("no", "yes")
+
+
+d <- cptable(~diff, values = c(.3,.7), levels = ny) # difficult course - Yes/No
+i <- cptable(~intel, values = c(.8,.2), levels = lh) #intellegence - high/low
+g.i <- cptable(~grade|diff+intel, values = c(.6,.4,.8,.2, .01, .99, .1, .9), levels = lh) 
+s.i <- cptable(~sat|intel, values = c(.9, .1, .2, .8), levels=lh)
+l.g <- cptable(~letter|grade, values = c(.9, .1, .05, .95), levels = lh)
+
+plist <- compileCPT(list(d, i, g.i, s.i, l.g))
+plist$d
+
+net1 <-grain(plist)
+
+
+```
+
+### Probablity of difficulty when letter was good (high)
+
+```{r}
+#Current difficulty
+querygrain(net1, nodes=c("diff"), type="marginal")
+
+#New evidence
+net12 <- setEvidence(net1, nslist=list(letter = "high"))
+#New prob. difficulty 
+querygrain(net12, nodes=c("diff"), type="marginal")
+````
+Probability of difficulty = yes decreases from 70% to about 63% when the additional evidence of a positive letter is introduced.
+
+```{r}
+#also Good SAT scores
+#New evidence
+net13 <- setEvidence(net1, nslist=list(letter = "high", sat = "high"))
+#New prob. difficulty 
+querygrain(net13, nodes=c("diff"), type="marginal")
+```
+When additional evidence of a high SAT score, along with positive letter, is introduced, the probability that the difficulty = yes is around 67%. 
+
+

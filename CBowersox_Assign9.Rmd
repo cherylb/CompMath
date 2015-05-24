@@ -1,0 +1,170 @@
+---
+title: "CBowersoxAssign9"
+author: "Cheryl Bowersox"
+output: html_document
+---
+
+# Week 9 Assignment
+
+Cheryl Bowersox 
+IS 605 - 1
+3/29/15
+
+## Problem Set 1
+
+### (1) random variable for function:
+
+$$
+  f(x) = x , 0 \leq x \leq 1 \\
+  f(x) = 2 - x , 1 < x \leq 2 \\
+$$  
+  CDF:
+$$
+  F(x) = \frac{x^2}{2}, 0\leq x \leq 1\\
+  F(x) = 2x - \frac{x^2}{2} - 1, 1 < x \leq 2\\
+$$
+
+$$
+  F^{-1}(y) = \sqrt{2y},  0 \leq x \leq .5\\
+  F^{-1}(y) = \sqrt{2-2y} + 2,   .5 < x \leq 1\\
+$$
+```{r}
+library(ggplot2)
+invf <- function(y) {
+  f.y = NULL
+  if(y >= 0 && y <=.5){
+    f.y <- sqrt(2*y)
+  }else{
+      if(y <= 1 && y > .5){
+        f.y <- 2- sqrt(2-2*y)
+      }
+    }
+  return(f.y)
+}
+
+rval <- function(){
+  val <- sapply(runif(1),invf)
+  return(val)
+}
+
+```
+Random 5 values following distribution f(x):
+`r rval()`
+`r rval()`
+`r rval()`
+`r rval()`
+`r rval()`
+
+
+### (2) random variable for function:
+$$
+  f(x) = 1-x , 0 \leq x \leq 1\\
+  f(x) = x-1 , 1 < x \leq 2
+$$
+
+```{r}
+px2 <- function(x) {
+  #probablity function
+  p = NULL
+  if(x >= 0 && x <=1){
+    p <- 1 -x
+  }else{
+    if(x <= 2 && x >1){
+        p <- x - 1}
+  }
+  return(p)
+}
+
+sampf <- function(n){
+  # in is the sample size to return
+  vals <- seq(0,2, by = .01)  #values in range 0 to 2
+  p <- sapply(vals,px2)  #prob of vals
+  ret<- sample(vals, n, replace = TRUE, prob = p)
+  return(ret)
+}
+```
+
+
+### (3) Plot histogram for both distributions (1) and (2)
+
+Density for 1000 samples of function (1)
+```{r}
+df <- data.frame(x = replicate(1000,rval()))
+ggplot(data = df, aes(x=x)) +
+    geom_histogram(aes(y = ..density..), binwidth = .1,
+                   fill = "darkcyan", alpha = 0.4)
+
+
+```
+
+Density for 1000 samples of function (2)
+```{r}
+l <- sampf(1000)
+df <- data.frame(x = sampf(1000))
+ggplot(data = df, aes(x=x)) +
+    geom_histogram(aes(y = ..density..), binwidth = .1,
+                   fill = "darkcyan", alpha = 0.4)
+
+```
+
+
+### (4) Function to sample and plot means of sample size 'n' and given pdf function
+```{r}
+
+plt.mean <- function(n,pdf, lb = 0, ub = 2){
+  # n is the sample size
+  # pdf is the name of a pdf function that returns the probablity of given x
+  # lb is the lower bound of samples to use in this pdf, default 0
+  # ub is the upper bound of samples to use in this pdf, default 2
+  p <- match.fun(pdf) #p is pdf function
+  mean.p <-c()
+  i <- 0
+  while(i <= 1000){
+    vals <- seq(lb,ub, by = .01)  #values in range given by lb, ub
+    s <- sample(vals, n, replace = TRUE, prob = sapply(vals,p))
+    mean.p <- c(mean.p, mean(s)) # mean of sample
+    i <- i + 1
+  }
+  dfx <- data.frame(mean.p)
+  m <- mean(mean.p)
+  stv <- sd(mean.p)
+  ggplot(data = dfx, aes(x=mean.p)) + 
+    geom_histogram(aes(y = ..density..), binwidth = .005, 
+                   fill = "darkcyan", alpha = 0.4)+
+    stat_function(geom="line", fun=dnorm, arg=list(mean=m, sd=stv),  
+                  colour = "#003333")
+}
+
+# function for problem 1
+px1 <- function(x){
+  p = NULL
+  if(x >= 0 && x <=1){
+    p <- x
+  }else{
+    if(x <= 2 && x >1){
+        p <- 2-x}
+  }
+  return(p)
+}
+  
+```
+
+
+### (5) Plot means of (1), (2), compare to normal distribution
+
+Plot means of function (1), with n = 10, 20, 100 with normal curve
+```{r}
+plt.mean(10,"px1")
+plt.mean(20,"px1")
+plt.mean(100,"px1")
+```
+
+```
+
+Plot means of function (2), with n = 10, 20, 100 with normal curve
+```{r}
+plt.mean(10,"px2")
+plt.mean(20,"px2")
+plt.mean(100,"px2")
+```
+
